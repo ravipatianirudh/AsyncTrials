@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.Practices.EnterpriseLibrary.SemanticLogging;
 
 namespace ConsoleApplication2
 {
@@ -13,8 +11,12 @@ namespace ConsoleApplication2
         {
             Stopwatch timer = new Stopwatch();
             Console.WriteLine("Starting Async Trials");
+            var ConsoleListener = ConsoleLog.CreateListener();
+            ConsoleListener.EnableEvents(AsyncTrialEventSource.Log, System.Diagnostics.Tracing.EventLevel.Informational);
             timer.Start();
+            
             Task t = AsyncTrialMethod();
+            AsyncTrialEventSource.Log.TaskRunning(t);
             t.Wait();
             timer.Stop();
             Console.WriteLine("Ended Async Trials in " + timer.ElapsedMilliseconds + " milliseconds");
@@ -24,7 +26,9 @@ namespace ConsoleApplication2
         public static async Task AsyncTrialMethod()
         {
             Task t1 = FirstWaitTask();
+            AsyncTrialEventSource.Log.TaskRunning(t1);
             Task t2 = SecondWaitTask();
+            AsyncTrialEventSource.Log.TaskRunning(t2);
             Stopwatch timer = new Stopwatch();
 
             timer.Start();
